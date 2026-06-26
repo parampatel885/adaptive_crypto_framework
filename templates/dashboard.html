@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adaptive Crypto Framework</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header>
+    <div class="header-left">
+      <h1>🔐 Adaptive Cryptography Framework</h1>
+      <p>Choose a data source · run both pipelines · compare efficiency</p>
+    </div>
+    <div class="threat-badge" id="threatBadge">
+      <span class="threat-dot" id="threatDot"></span>
+      <span id="threatLabel">Connecting…</span>
+    </div>
+  </header>
+
+  <!-- ── Input Card ── -->
+  <section class="card upload-card">
+    <h2 class="card-title">📂 Step 1 — Choose Data Source</h2>
+
+    <!-- Source Tabs -->
+    <div class="source-tabs">
+      <button class="tab-btn active" id="tabFile" onclick="switchSource('file')">
+        📁 Local File
+      </button>
+      <button class="tab-btn" id="tabHF" onclick="switchSource('huggingface')">
+        🤗 HuggingFace Dataset
+      </button>
+    </div>
+
+    <!-- Local File Section -->
+    <div id="fileSection">
+      <div class="file-row">
+        <label class="file-label" for="fileInput">📁 Choose File</label>
+        <input type="file" id="fileInput" accept=".txt,.csv,.json,.log">
+        <span class="file-name" id="fileNameDisplay">No file selected</span>
+      </div>
+      <p class="source-hint">Supports .txt, .csv, .json, .log — up to 1,000 lines processed.</p>
+    </div>
+
+    <!-- HuggingFace Section -->
+    <div id="hfSection" style="display:none;">
+      <div class="hf-row">
+        <div class="hf-field">
+          <label class="hf-label" for="hfDataset">Dataset name</label>
+          <input
+            type="text"
+            id="hfDataset"
+            class="hf-input"
+            placeholder="e.g. ai4privacy/pii-masking-300k"
+            value="ai4privacy/pii-masking-300k"
+            oninput="onHFInput()"
+          >
+        </div>
+        <div class="hf-field hf-limit-field">
+          <label class="hf-label" for="hfLimit">Records (max 1000)</label>
+          <input
+            type="number"
+            id="hfLimit"
+            class="hf-input hf-limit"
+            value="100"
+            min="1"
+            max="1000"
+          >
+        </div>
+      </div>
+      <p class="source-hint">Streams records live from the HuggingFace Hub. Requires internet access.</p>
+    </div>
+
+    <!-- Run Buttons (shared for both sources) -->
+    <div class="btn-row" style="margin-top: 20px;">
+      <button class="btn btn-adaptive" id="adaptiveBtn" onclick="runPipeline('adaptive')" disabled>
+        🤖 Run Adaptive Encryption
+      </button>
+      <button class="btn btn-standard" id="standardBtn" onclick="runPipeline('standard')" disabled>
+        🔒 Run Standard Encryption
+      </button>
+    </div>
+  </section>
+
+  <!-- ── Progress Bars ── -->
+  <div class="progress-row" id="progressRow" style="display:none;">
+    <div class="progress-item" id="adaptiveProgressItem" style="display:none;">
+      <span class="progress-label">🤖 Adaptive</span>
+      <div class="progress-track">
+        <div class="progress-fill fill-adaptive" id="adaptiveProgressFill"></div>
+      </div>
+      <span class="progress-pct" id="adaptiveProgressPct">0%</span>
+    </div>
+    <div class="progress-item" id="standardProgressItem" style="display:none;">
+      <span class="progress-label">🔒 Standard</span>
+      <div class="progress-track">
+        <div class="progress-fill fill-standard" id="standardProgressFill"></div>
+      </div>
+      <span class="progress-pct" id="standardProgressPct">0%</span>
+    </div>
+  </div>
+
+  <!-- ── Result Panels ── -->
+  <div class="results-grid">
+    <div class="panel adaptive-panel">
+      <h2 class="panel-title">🤖 Adaptive Pipeline Results</h2>
+      <div id="adaptiveContent">
+        <div class="placeholder">Run the adaptive pipeline to see results here.</div>
+      </div>
+    </div>
+    <div class="panel standard-panel">
+      <h2 class="panel-title">🔒 Standard Encryption Results</h2>
+      <div id="standardContent">
+        <div class="placeholder">Run the standard pipeline to see results here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Compare + Reset ── -->
+  <div class="action-row">
+    <button class="btn btn-compare" id="compareBtn" onclick="runCompare()" disabled>
+      📊 Compare Results
+    </button>
+    <button class="btn btn-reset" onclick="resetAll()">↺ Reset</button>
+    <span class="compare-hint" id="compareHint">Run both pipelines to enable comparison.</span>
+  </div>
+
+  <!-- ── Comparison Output ── -->
+  <section id="compareSection" style="display:none;">
+    <div class="card compare-card">
+      <h2 class="compare-heading">📊 Efficiency Comparison</h2>
+      <p class="compare-sub">Adaptive Framework vs. Always-On Standard (ECDH+AES)</p>
+
+      <div class="cmp-grid" id="compareCards"></div>
+
+      <div class="table-wrap">
+        <table class="side-table">
+          <thead>
+            <tr>
+              <th>Metric</th>
+              <th>🤖 Adaptive</th>
+              <th>🔒 Standard</th>
+              <th>Savings</th>
+            </tr>
+          </thead>
+          <tbody id="sideTableBody"></tbody>
+        </table>
+      </div>
+
+      <div class="verdict" id="verdictText"></div>
+    </div>
+  </section>
+
+  <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,67 @@
+# ── Python ────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.Python
+
+# ── Virtual environments ──────────────────────────────────────────────
+venv/
+.venv/
+env/
+.env/
+ENV/
+
+# ── Jupyter ───────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# ── Model binaries ────────────────────────────────────────────────────
+# Uncomment the line below if you do NOT want to commit the trained model.
+# src/knn_model.pkl
+
+# ── Sensitive / raw data ──────────────────────────────────────────────
+# Raw datasets may contain PII — keep them out of version control.
+data/raw/
+data/processed/
+
+# ── Environment variable files ────────────────────────────────────────
+.env
+.env.*
+*.env
+
+# ── IDE / editor ──────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.code-workspace
+.cursor/
+
+# ── OS ────────────────────────────────────────────────────────────────
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+desktop.ini
+
+# ── Logs & temp ───────────────────────────────────────────────────────
+*.log
+*.tmp
+*.bak
+*.swp
+
+# ── Docker ────────────────────────────────────────────────────────────
+# Keep Dockerfile and docker-compose.yml tracked, but ignore exported images.
+*.tar.gz
+*.tar
+
+# ── Test / coverage artifacts ─────────────────────────────────────────
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+"notebooks/03_q_learning_simulator.ipynb" 

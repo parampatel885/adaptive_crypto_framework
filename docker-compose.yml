@@ -1,0 +1,45 @@
+version: "3.9"
+
+services:
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: adaptive_crypto_dashboard
+
+    # ── Port mapping ─────────────────────────────────────────────────
+    # Remove 'ports' and use network_mode: host (see below) if you want
+    # Scapy to see real host network traffic on Linux.
+    ports:
+      - "5000:5000"
+
+    # ── Environment ──────────────────────────────────────────────────
+    environment:
+      - PYTHONUNBUFFERED=1      # ensures print() output appears in docker logs
+      - PYTHONDONTWRITEBYTECODE=1
+
+    # ── Restart policy ───────────────────────────────────────────────
+    restart: unless-stopped
+
+# ────────────────────────────────────────────────────────────────────
+# NOTES
+# ────────────────────────────────────────────────────────────────────
+# Threat detection uses psutil (network bytes/s) — no root privileges,
+# no Npcap, no cap_add. Works on Windows, macOS, and Linux identically.
+#
+# 1. Start the dashboard:
+#      docker compose up --build
+#    Then open: http://localhost:5000
+#
+# 2. To share with someone else:
+#    a) Push to Docker Hub:
+#         docker build -t <yourname>/adaptive-crypto .
+#         docker push <yourname>/adaptive-crypto
+#       Recipient runs:
+#         docker run -p 5000:5000 <yourname>/adaptive-crypto
+#
+#    b) Export as a portable file:
+#         docker save adaptive_crypto_dashboard | gzip > adaptive_crypto.tar.gz
+#       Recipient loads it with:
+#         docker load < adaptive_crypto.tar.gz
+#         docker run -p 5000:5000 adaptive_crypto_dashboard

@@ -1,0 +1,43 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pycache
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+notebooks/.ipynb_checkpoints/
+tests/.ipynb_checkpoints/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env/
+
+# IDE / editor
+.vscode/
+.idea/
+*.code-workspace
+.cursor/
+
+# Git
+.git/
+.gitignore
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Docker files themselves (no need to copy into image)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Logs and temp files
+*.log
+*.tmp
+
+# Duplicate nested folder (artifact from earlier copy)
+adaptive_crypto_framework/
