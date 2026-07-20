@@ -1,3 +1,4 @@
+#This file is a lightwight harness that uses simulated network traffic to test the adaptive crypto framework.
 import os
 import csv
 import threading
@@ -8,7 +9,7 @@ from datasets import load_dataset
 from scapy.all import sniff
 
 # Import your core custom library modules
-from src.monitor import extract_file_features
+from src.monitor import FEATURE_COLUMNS, extract_file_features
 from src.classifiers import AdaptiveQLearner
 from src.crypto_engines import execute_standard_aes, execute_hybrid_ecc_aes, execute_lightweight_trivium
 
@@ -19,13 +20,16 @@ packet_log_history = []
 rl_agent = AdaptiveQLearner()
 
 # Safeguard verification for model assets
-MODEL_PATH = 'src/knn_model.pkl'
-if os.path.exists(MODEL_PATH):
-    with open(MODEL_PATH, 'rb') as f:
-        knn_model = pickle.load(f)
-else:
-    knn_model = None
-    print("⚠️ Warning: knn_model.pkl not found! Falling back to heuristic keyword flags.")
+_MODEL_CANDIDATES = ['src/sensitivity_model.pkl', 'src/knn_model.pkl']
+sensitivity_model = None
+for MODEL_PATH in _MODEL_CANDIDATES:
+    if os.path.exists(MODEL_PATH):
+        with open(MODEL_PATH, 'rb') as f:
+            sensitivity_model = pickle.load(f)
+        print(f"✅ Sensitivity model loaded from {MODEL_PATH}")
+        break
+if sensitivity_model is None:
+    print("⚠️ Warning: sensitivity model not found! Falling back to heuristic keyword flags.")
 
 # --- Background Network Sentinel (Scapy Thread) ---
 def background_network_sniffer():
@@ -46,28 +50,27 @@ def process_live_network_packet(packet):
 
 # --- Core Pipeline Execution Core ---
 def evaluate_and_encrypt_stream(filename, raw_text, threat_state):
-    """Funnels text streams through the feature monitor, KNN classifier, and Q-table."""
-    global knn_model, rl_agent
+    """Funnels text streams through the feature monitor, sensitivity classifier, and Q-table."""
+    global sensitivity_model, rl_agent
     
     # 1. Feature Extraction (src/monitor.py)
-    ext = os.path.splitext(filename)[1] or ".txt"
-    ext_id = 2 if ext == ".json" else (1 if ext == ".csv" else 0)
-    size_kb = len(raw_text.encode('utf-8')) / 1024.0
+    features = extract_file_features(filename, raw_text)
+    size_kb = features[FEATURE_COLUMNS.index("Size_KB")]
     
-    # Custom statistical extraction block
-    keywords_matched = 1 if any(k in raw_text.lower() for k in ["ssn", "patient_id", "cvv", "password", "amount"]) else 0
-    
-    # 2. KNN Sensitivity Classification
-    if knn_model:
+    # 2. Sensitivity Classification
+    if sensitivity_model is not None:
         # Wrap into a small DataFrame to eliminate Scikit-Learn feature name warnings
-        input_df = pd.DataFrame([[ext_id, size_kb, 4.5, keywords_matched]], 
-                                columns=['Ext_ID', 'Size_KB', 'Entropy', 'Keywords'])
-        sens_state = int(knn_model.predict(input_df)[0])
+        input_df = pd.DataFrame([features], columns=FEATURE_COLUMNS)
+        sens_state = int(sensitivity_model.predict(input_df)[0])
     else:
-        sens_state = 1 if keywords_matched == 1 else 0
+        keywords_matched = features[FEATURE_COLUMNS.index("Keywords")]
+        pii_patterns = features[FEATURE_COLUMNS.index("PII_Patterns")]
+        labeled_fields = features[FEATURE_COLUMNS.index("Labeled_PII_Fields")]
+        email_count = features[FEATURE_COLUMNS.index("Email_Count")]
+        sens_state = 1 if keywords_matched or pii_patterns or labeled_fields or email_count else 0
 
     # 3. Reinforcement Learning Action Selection
-    action = rl_agent.select_action((sens_state, threat_state))
+    action = rl_agent.select_action(sens_state, threat_state)
     
     # 4. Real Cryptographic Block Transformations
     if action == 0:

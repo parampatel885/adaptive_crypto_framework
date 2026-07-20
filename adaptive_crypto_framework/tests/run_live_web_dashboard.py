@@ -20,7 +20,7 @@ except ImportError:
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.classifiers import AdaptiveQLearner, calculate_reinforcement_reward
 from src.crypto_engines import execute_lightweight_trivium, execute_standard_aes, execute_hybrid_ecc_aes
-from src.monitor import extract_file_features
+from src.monitor import FEATURE_COLUMNS, extract_file_features
 
 app = Flask(__name__)
 
@@ -35,11 +35,19 @@ live_dashboard_state = {
 }
 
 # Load serialized analytical framework assets compiled during laboratory notebooks
-try:
-    with open(os.path.join('src', 'knn_model.pkl'), 'rb') as f:
-        knn_model = pickle.load(f)
-except FileNotFoundError:
-    print("⚠️ WARNING: Local knn_model.pkl binary missing. Using a fallback mock classifier layer for UI layout.")
+_model_candidates = [
+    os.path.join('src', 'sensitivity_model.pkl'),
+    os.path.join('src', 'knn_model.pkl'),
+]
+knn_model = None
+for _path in _model_candidates:
+    if os.path.exists(_path):
+        with open(_path, 'rb') as f:
+            knn_model = pickle.load(f)
+        print(f"✅ Sensitivity model loaded from {_path}")
+        break
+if knn_model is None:
+    print("⚠️ WARNING: Local sensitivity model missing. Using a fallback mock classifier layer for UI layout.")
     class MockKNN:
         def predict(self, df): return [np.random.choice([0, 1])]
     knn_model = MockKNN()
@@ -73,7 +81,7 @@ def live_traffic_sniffer_loop():
             
             # Step A: Compute Shannon Entropy and keywords metrics on the fly
             features = extract_file_features(simulated_name, raw_payload_text)
-            features_df = pd.DataFrame([features], columns=['Ext_ID', 'Size_KB', 'Entropy', 'Keywords'])
+            features_df = pd.DataFrame([features], columns=FEATURE_COLUMNS)
             
             # Step B: Classify sensitivity profile context boundaries using machine learning
             sens_state = knn_model.predict(features_df)[0]

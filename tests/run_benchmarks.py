@@ -4,22 +4,24 @@ import numpy as np
 import pickle
 from src.classifiers import AdaptiveQLearner, calculate_reinforcement_reward
 from src.crypto_engines import execute_lightweight_trivium, execute_standard_aes, execute_hybrid_ecc_aes
+from src.monitor import FEATURE_COLUMNS
 
 def run_system_benchmarks():
     print("🎬 Initializing Real Cryptography Benchmark Evaluation Harness...")
     dataset = pd.read_csv('data/processed/sensitivity_dataset.csv')
-    with open('src/knn_model.pkl', 'rb') as f:
-        knn_model = pickle.load(f)
+    model_path = 'src/sensitivity_model.pkl' if os.path.exists('src/sensitivity_model.pkl') else 'src/knn_model.pkl'
+    with open(model_path, 'rb') as f:
+        sensitivity_model = pickle.load(f)
+    print(f"Loaded sensitivity model: {model_path}")
 
     rl_agent = AdaptiveQLearner()
     metrics = {'static_heavy_time': 0.0, 'static_heavy_energy': 0.0, 'adaptive_time': 0.0, 'adaptive_energy': 0.0,
                'lightweight_triggers': 0, 'standard_aes_triggers': 0, 'hybrid_ecc_triggers': 0}
 
     for index, row in dataset.iterrows():
-        ext_id, size_kb, entropy, keywords = row['Ext_ID'], row['Size_KB'], row['Entropy'], row['Keywords']
-        features_df = pd.DataFrame([[ext_id, size_kb, entropy, keywords]], columns=['Ext_ID', 'Size_KB', 'Entropy', 'Keywords'])
+        features_df = pd.DataFrame([row[FEATURE_COLUMNS].to_dict()], columns=FEATURE_COLUMNS)
         
-        sens_state = knn_model.predict(features_df)[0]
+        sens_state = sensitivity_model.predict(features_df)[0]
         threat_state = 1 if (index % 4 == 0) else 0
         raw_payload_string = str(row.to_dict())
 

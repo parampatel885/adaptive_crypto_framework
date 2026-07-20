@@ -32,6 +32,7 @@ from src.crypto_engines import (
     execute_standard_aes,
     execute_hybrid_ecc_aes,
 )
+from src.monitor import FEATURE_COLUMNS, extract_file_features
 
 # ── Flask app (templates + static at project root) ──────────────────
 app = Flask(
@@ -46,15 +47,22 @@ sse_queue: queue.Queue = queue.Queue()
 session_results: dict = {"adaptive": None, "standard": None}
 rl_agent = AdaptiveQLearner()
 
-# ── Load KNN model ────────────────────────────────────────────────────
-_MODEL_PATH = os.path.join(_ROOT, "src", "knn_model.pkl")
-try:
-    with open(_MODEL_PATH, "rb") as _f:
-        knn_model = pickle.load(_f)
-    print("✅ KNN model loaded.")
-except FileNotFoundError:
-    knn_model = None
-    print("⚠️  knn_model.pkl not found — using keyword fallback.")
+# ── Load sensitivity classifier (Logistic Regression by default) ──────
+_MODEL_CANDIDATES = (
+    os.path.join(_ROOT, "src", "sensitivity_model.pkl"),
+    os.path.join(_ROOT, "src", "knn_model.pkl"),  # legacy compatibility
+)
+sensitivity_model = None
+_MODEL_PATH = None
+for _candidate in _MODEL_CANDIDATES:
+    if os.path.exists(_candidate):
+        with open(_candidate, "rb") as _f:
+            sensitivity_model = pickle.load(_f)
+        _MODEL_PATH = _candidate
+        print(f"✅ Sensitivity model loaded from {os.path.relpath(_MODEL_PATH, _ROOT)}")
+        break
+if sensitivity_model is None:
+    print("⚠️  sensitivity_model.pkl not found — using keyword fallback.")
 
 # ── psutil network-throughput threat monitor ──────────────────────────
 # Threshold: if inbound traffic exceeds 500 KB/s → anomaly (threat = 1).
@@ -97,21 +105,23 @@ threading.Thread(target=_psutil_monitor, daemon=True).start()
 # ── Constants / helpers ───────────────────────────────────────────────
 _MAX_LINES = 1000
 
-_SENSITIVE_KW = [
-    "ssn", "patient_id", "cvv", "password", "amount",
-    "medical", "bank", "routing", "balance", "glucose",
-]
-
 _HF_TEXT_KEYS = ["text", "unmasked_text", "content", "utterance", "inputs", "prompt"]
 
 
-def _classify(ext_id: int, size_kb: float, keywords: int) -> int:
-    if knn_model:
+def _classify(features: list[float]) -> int:
+    if sensitivity_model is not None:
         df = pd.DataFrame(
-            [[ext_id, size_kb, 4.5, keywords]],
-            columns=["Ext_ID", "Size_KB", "Entropy", "Keywords"],
+            [features],
+            columns=FEATURE_COLUMNS,
         )
-        return int(knn_model.predict(df)[0])
+        return int(sensitivity_model.predict(df)[0])
+    keywords = int(features[FEATURE_COLUMNS.index("Keywords")])
+    pii_patterns = int(features[FEATURE_COLUMNS.index("PII_Patterns")])
+    labeled_fields = int(features[FEATURE_COLUMNS.index("Labeled_PII_Fields")])
+    email_count = int(features[FEATURE_COLUMNS.index("Email_Count")])
+    column_signals = int(features[FEATURE_COLUMNS.index("Column_Name_Signals")])
+    if pii_patterns or labeled_fields or email_count or column_signals >= 2:
+        return 1
     return 1 if keywords else 0
 
 
@@ -147,7 +157,6 @@ def _fetch_hf_lines(dataset_name: str, limit: int) -> list[str]:
 # ── Shared pipeline cores (reused by file + HF routes) ───────────────
 
 def _adaptive_pipeline(lines: list[str], source_name: str) -> dict:
-    eid = _ext_id(source_name)
     n = len(lines)
 
     tier_counts = {
@@ -159,9 +168,10 @@ def _adaptive_pipeline(lines: list[str], source_name: str) -> dict:
     packet_log = []
 
     for i, line in enumerate(lines):
-        size_kb = len(line.encode()) / 1024.0
-        kw = 1 if any(k in line.lower() for k in _SENSITIVE_KW) else 0
-        sens = _classify(eid, size_kb, kw)
+        features = extract_file_features(source_name, line)
+        size_kb = features[FEATURE_COLUMNS.index("Size_KB")]
+        entropy = features[FEATURE_COLUMNS.index("Entropy")]
+        sens = _classify(features)
         threat = live_threat_state
 
         action = rl_agent.select_action(sens, threat, epsilon=0.05)
@@ -186,6 +196,7 @@ def _adaptive_pipeline(lines: list[str], source_name: str) -> dict:
         packet_log.append({
             "id": i + 1,
             "size_kb": round(size_kb, 4),
+            "entropy": entropy,
             "sensitive": "YES" if sens else "NO",
             "cipher": tier,
             "threat": "HIGH" if threat else "SAFE",
