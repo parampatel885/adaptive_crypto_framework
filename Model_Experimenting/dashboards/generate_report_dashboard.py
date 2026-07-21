@@ -1,6 +1,12 @@
-import os
+import sys
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
+from repo_paths import DATA_PROCESSED  # noqa: E402
 
 def generate_academic_dashboard():
     print("📊 Generating Adaptive Framework Academic Report Dashboard...")
@@ -89,7 +95,8 @@ def generate_academic_dashboard():
 
     # Finalize padding adjustments and save a high-res master copy to Google Drive storage
     plt.tight_layout(rect=[0, 0.03, 1, 0.95])
-    output_img_path = 'data/processed/academic_results_dashboard.png'
+    output_img_path = DATA_PROCESSED / "academic_results_dashboard.png"
+    output_img_path.parent.mkdir(parents=True, exist_ok=True)
     plt.savefig(output_img_path, dpi=300)
     plt.show()
     print(f"✔ Analytical Master Graph compiled and saved to disk path: {output_img_path}")

@@ -1,5 +1,5 @@
-import os
 import sys
+from pathlib import Path
 
 # 1. Automatic Environment Check
 try:
@@ -9,6 +9,10 @@ except ImportError:
     print("❌ ERROR: Missing required visualization dependencies!")
     print("👉 Please run: pip install matplotlib numpy")
     sys.exit(1)
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(REPO_ROOT))
+from repo_paths import DATA_PROCESSED  # noqa: E402
 
 def show_interactive_mentor_dashboard():
     print("🌐 Opening Framework Experimental Performance Dashboard...")
@@ -77,8 +81,9 @@ def show_interactive_mentor_dashboard():
     # 3. Clean and Render View window
     plt.tight_layout(rect=[0, 0.02, 1, 0.95])
     
-    os.makedirs('data/processed', exist_ok=True)
-    plt.savefig('data/processed/academic_results_dashboard.png', dpi=300)
+    output_img_path = DATA_PROCESSED / "academic_results_dashboard.png"
+    output_img_path.parent.mkdir(parents=True, exist_ok=True)
+    plt.savefig(output_img_path, dpi=300)
     
     print("✔ Graphical panel active. Displaying interactive visual window...")
     print("👉 Info: Close the pop-up chart window to terminate the script.")

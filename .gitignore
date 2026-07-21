@@ -23,12 +23,12 @@ ENV/
 
 # ── Model binaries ────────────────────────────────────────────────────
 # Uncomment the line below if you do NOT want to commit the trained model.
-# src/knn_model.pkl
+# Production/src/knn_model.pkl
 
 # ── Sensitive / raw data ──────────────────────────────────────────────
 # Raw datasets may contain PII — keep them out of version control.
-data/raw/
-data/processed/
+Model_Experimenting/data/raw/
+Model_Experimenting/data/processed/
 
 # ── Environment variable files ────────────────────────────────────────
 .env

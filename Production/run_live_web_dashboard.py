@@ -18,12 +18,20 @@ import pickle
 import queue
 import threading
 import time
+from pathlib import Path
 
 import pandas as pd
 
-# Make project root importable from tests/
-_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(_ROOT)
+_REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(_REPO_ROOT))
+from repo_paths import (  # noqa: E402
+    MODEL_CANDIDATES,
+    setup_production_imports,
+    STATIC_DIR,
+    TEMPLATES_DIR,
+)
+
+setup_production_imports()
 
 from flask import Flask, request, jsonify, render_template, Response, stream_with_context
 from src.classifiers import AdaptiveQLearner, calculate_reinforcement_reward
@@ -37,8 +45,8 @@ from src.monitor import FEATURE_COLUMNS, extract_file_features
 # ── Flask app (templates + static at project root) ──────────────────
 app = Flask(
     __name__,
-    template_folder=os.path.join(_ROOT, "templates"),
-    static_folder=os.path.join(_ROOT, "static"),
+    template_folder=str(TEMPLATES_DIR),
+    static_folder=str(STATIC_DIR),
 )
 
 # ── Global state ──────────────────────────────────────────────────────
@@ -48,18 +56,14 @@ session_results: dict = {"adaptive": None, "standard": None}
 rl_agent = AdaptiveQLearner()
 
 # ── Load sensitivity classifier (Logistic Regression by default) ──────
-_MODEL_CANDIDATES = (
-    os.path.join(_ROOT, "src", "sensitivity_model.pkl"),
-    os.path.join(_ROOT, "src", "knn_model.pkl"),  # legacy compatibility
-)
 sensitivity_model = None
 _MODEL_PATH = None
-for _candidate in _MODEL_CANDIDATES:
-    if os.path.exists(_candidate):
-        with open(_candidate, "rb") as _f:
+for _candidate in MODEL_CANDIDATES:
+    if _candidate.exists():
+        with _candidate.open("rb") as _f:
             sensitivity_model = pickle.load(_f)
         _MODEL_PATH = _candidate
-        print(f"✅ Sensitivity model loaded from {os.path.relpath(_MODEL_PATH, _ROOT)}")
+        print(f"✅ Sensitivity model loaded from {os.path.relpath(_MODEL_PATH, _REPO_ROOT)}")
         break
 if sensitivity_model is None:
     print("⚠️  sensitivity_model.pkl not found — using keyword fallback.")

@@ -17,16 +17,16 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # ── Project files ─────────────────────────────────────────────────────
-COPY src/        ./src/
-COPY tests/      ./tests/
-COPY templates/  ./templates/
-COPY static/     ./static/
-COPY data/       ./data/
-COPY notebooks/  ./notebooks/
+COPY repo_paths.py           ./
+COPY Production/src/         ./Production/src/
+COPY Production/templates/   ./Production/templates/
+COPY Production/static/      ./Production/static/
+COPY Production/run_live_web_dashboard.py ./Production/
+COPY Model_Experimenting/data/ ./Model_Experimenting/data/
 
 # ── Port ──────────────────────────────────────────────────────────────
 EXPOSE 5000
 
 # ── Start ─────────────────────────────────────────────────────────────
-# Run from /app (project root) so all relative paths resolve correctly.
-CMD ["python", "tests/run_live_web_dashboard.py"]
+# Run from /app (project root) so repo_paths resolves correctly.
+CMD ["python", "Production/run_live_web_dashboard.py"]

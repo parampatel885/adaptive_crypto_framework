@@ -7,8 +7,10 @@ __pycache__/
 
 # Jupyter checkpoints
 .ipynb_checkpoints/
-notebooks/.ipynb_checkpoints/
-tests/.ipynb_checkpoints/
+Model_Experimenting/notebooks/.ipynb_checkpoints/
+
+# Documents (not needed in runtime image)
+Documents/
 
 # Virtual environments
 venv/

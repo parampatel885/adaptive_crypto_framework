@@ -6,9 +6,9 @@ current multi-source dataset). Also writes a compatibility copy to
 src/knn_model.pkl so older scripts keep working.
 
 Usage:
-    python tests/rebuild_sensitivity_dataset.py
-    python tests/rebuild_sensitivity_dataset.py --rows-per-file 200
-    python tests/rebuild_sensitivity_dataset.py --model-type logistic_regression
+    python Model_Experimenting/rebuild_sensitivity_dataset.py
+    python Model_Experimenting/rebuild_sensitivity_dataset.py --rows-per-file 200
+    python Model_Experimenting/rebuild_sensitivity_dataset.py --model-type logistic_regression
 """
 
 from __future__ import annotations
@@ -30,18 +30,28 @@ from sklearn.preprocessing import StandardScaler
 
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.append(str(ROOT))
+sys.path.insert(0, str(ROOT))
+from repo_paths import (  # noqa: E402
+    COMPAT_MODEL,
+    DATA_PROCESSED,
+    DATA_RAW_NORMAL,
+    DATA_RAW_SENSITIVE,
+    SENSITIVITY_MODEL,
+    setup_production_imports,
+)
+
+setup_production_imports()
 
 from src.monitor import FEATURE_COLUMNS, extract_file_features  # noqa: E402
 
 
 RAW_DIRS = (
-    (ROOT / "data" / "raw" / "sensitive", 1),
-    (ROOT / "data" / "raw" / "normal", 0),
+    (DATA_RAW_SENSITIVE, 1),
+    (DATA_RAW_NORMAL, 0),
 )
 
-DEFAULT_MODEL_PATH = ROOT / "src" / "sensitivity_model.pkl"
-COMPAT_MODEL_PATH = ROOT / "src" / "knn_model.pkl"
+DEFAULT_MODEL_PATH = SENSITIVITY_MODEL
+COMPAT_MODEL_PATH = COMPAT_MODEL
 
 
 def build_dataset(rows_per_file: int) -> pd.DataFrame:
@@ -138,7 +148,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--k", type=int, default=1, help="K value when --model-type knn.")
     parser.add_argument(
         "--processed-path",
-        default=str(ROOT / "data" / "processed" / "sensitivity_dataset.csv"),
+        default=str(DATA_PROCESSED / "sensitivity_dataset.csv"),
         help="Output path for processed feature dataset.",
     )
     parser.add_argument(

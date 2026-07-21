@@ -1,17 +1,28 @@
 #This file is a lightwight harness that uses simulated network traffic to test the adaptive crypto framework.
-import os
 import csv
+import sys
 import threading
 import pickle
+from pathlib import Path
+
 import pandas as pd
-from flask import Flask, request, jsonify, render_template_string
 from datasets import load_dataset
+from flask import Flask, jsonify, render_template_string, request
 from scapy.all import sniff
 
-# Import your core custom library modules
-from src.monitor import FEATURE_COLUMNS, extract_file_features
-from src.classifiers import AdaptiveQLearner
-from src.crypto_engines import execute_standard_aes, execute_hybrid_ecc_aes, execute_lightweight_trivium
+REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
+from repo_paths import MODEL_CANDIDATES, setup_production_imports  # noqa: E402
+
+setup_production_imports()
+
+from src.classifiers import AdaptiveQLearner  # noqa: E402
+from src.crypto_engines import (  # noqa: E402
+    execute_hybrid_ecc_aes,
+    execute_lightweight_trivium,
+    execute_standard_aes,
+)
+from src.monitor import FEATURE_COLUMNS, extract_file_features  # noqa: E402
 
 app = Flask(__name__)
 
@@ -20,13 +31,12 @@ packet_log_history = []
 rl_agent = AdaptiveQLearner()
 
 # Safeguard verification for model assets
-_MODEL_CANDIDATES = ['src/sensitivity_model.pkl', 'src/knn_model.pkl']
 sensitivity_model = None
-for MODEL_PATH in _MODEL_CANDIDATES:
-    if os.path.exists(MODEL_PATH):
-        with open(MODEL_PATH, 'rb') as f:
+for model_path in MODEL_CANDIDATES:
+    if model_path.exists():
+        with model_path.open("rb") as f:
             sensitivity_model = pickle.load(f)
-        print(f"✅ Sensitivity model loaded from {MODEL_PATH}")
+        print(f"✅ Sensitivity model loaded from {model_path.relative_to(REPO_ROOT)}")
         break
 if sensitivity_model is None:
     print("⚠️ Warning: sensitivity model not found! Falling back to heuristic keyword flags.")

@@ -24,14 +24,14 @@
 
 | Label | Value | Meaning |
 |-------|-------|---------|
-| Normal / Public | `0` | Non-sensitive data (sourced from `data/raw/normal/`) |
-| Sensitive | `1` | PHI / PCI / PII data (sourced from `data/raw/sensitive/`) |
+| Normal / Public | `0` | Non-sensitive data (sourced from `Model_Experimenting/data/raw/normal/`) |
+| Sensitive | `1` | PHI / PCI / PII data (sourced from `Model_Experimenting/data/raw/sensitive/`) |
 
 ### Raw Data Provenance
 
 - **6 source CSV files** — 3 sensitive + 3 normal domain files
 - **200 rows sampled** per file (`df.head(200)`) → 6 × 200 = **1,200 total rows**
-- Processed output: `data/processed/sensitivity_dataset.csv`
+- Processed output: `Model_Experimenting/data/processed/sensitivity_dataset.csv`
 
 ---
 
@@ -60,7 +60,7 @@
 | K = 5 | 100.00% |
 | K = 7 | 100.00% |
 
-**Selected model:** K = 1 (saved to `src/knn_model.pkl`)
+**Selected model:** K = 1 (saved to `Production/src/knn_model.pkl`)
 
 **Classification report (test set, K = 1):**
 
@@ -142,4 +142,4 @@
 
 ---
 
-*Generated from notebook outputs (`01_data_preprocessing`, `02_knn_model_training`, `03_q_learning_simulator`), `tests/run_benchmarks.py`, and archived dashboard metrics.*
+*Generated from notebook outputs (`01_data_preprocessing`, `02_knn_model_training`, `03_q_learning_simulator`), `Model_Experimenting/run_benchmarks.py`, and archived dashboard metrics.*

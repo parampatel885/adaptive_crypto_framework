@@ -43,11 +43,11 @@ Incoming packet / file line / HF stream record
         │
         ▼
 ┌──────────────────────────┐
-│ Feature extraction       │  src/monitor.py  (14-D vector)
+│ Feature extraction       │  Production/src/monitor.py  (14-D vector)
 └────────────┬─────────────┘
              ▼
 ┌──────────────────────────┐
-│ Sensitivity classifier   │  src/sensitivity_model.pkl
+│ Sensitivity classifier   │  Production/src/sensitivity_model.pkl
 │ (Logistic Regression)    │  0 = Public, 1 = Sensitive
 └────────────┬─────────────┘
              ▼
@@ -57,7 +57,7 @@ Incoming packet / file line / HF stream record
 └────────────┬─────────────┘     └─────────────────────┘
              ▼
 ┌──────────────────────────┐
-│ Q-Learning agent         │  src/classifiers.py
+│ Q-Learning agent         │  Production/src/classifiers.py
 │ state=(sens, threat)     │
 │ action = tier 0/1/2      │
 └────────────┬─────────────┘
@@ -71,11 +71,11 @@ Incoming packet / file line / HF stream record
 ### Important split of responsibilities
 | Component | Role | File |
 |-----------|------|------|
-| Feature extractor | Text → numeric vector | `src/monitor.py` |
-| Sensitivity model | Public vs Sensitive | `src/sensitivity_model.pkl` |
-| Q-Learning | Cipher selector (not sensitivity classifier) | `src/classifiers.py` |
-| Crypto engines | Real encryption + latency/energy | `src/crypto_engines.py` |
-| Live dashboard | Production demo UI | `tests/run_live_web_dashboard.py` |
+| Feature extractor | Text → numeric vector | `Production/src/monitor.py` |
+| Sensitivity model | Public vs Sensitive | `Production/src/sensitivity_model.pkl` |
+| Q-Learning | Cipher selector (not sensitivity classifier) | `Production/src/classifiers.py` |
+| Crypto engines | Real encryption + latency/energy | `Production/src/crypto_engines.py` |
+| Live dashboard | Production demo UI | `Production/run_live_web_dashboard.py` |
 
 **Do not confuse:** `classifiers.py` is Q-Learning only. Sensitivity ML lives in the pickle + `monitor.py` features.
 
@@ -86,13 +86,13 @@ Incoming packet / file line / HF stream record
 | Item | Current value |
 |------|----------------|
 | Production sensitivity model | **Logistic Regression** (`StandardScaler` + `LogisticRegression`) |
-| Model artifact | `src/sensitivity_model.pkl` (+ compat copy `src/knn_model.pkl`) |
+| Model artifact | `Production/src/sensitivity_model.pkl` (+ compat copy `Production/src/knn_model.pkl`) |
 | Feature dimension | **14 features** (was originally 4) |
 | Dataset size | ~1800 rows (200 rows × 9 source files) |
 | Sensitive sources | 5 files |
 | Normal sources | 4 files |
 | Best LOFO result | Logistic Regression ≈ **91.1% acc / 90.8% macro-F1** |
-| Live app entrypoint | `python tests/run_live_web_dashboard.py` → `http://127.0.0.1:5000` |
+| Live app entrypoint | `python Production/run_live_web_dashboard.py` → `http://127.0.0.1:5000` |
 | Docker | `docker compose up --build` (uses same dashboard) |
 
 ### Cipher tiers
@@ -108,7 +108,7 @@ Energy in code is **modeled** as `latency_ms × multiplier` (not hardware wattme
 
 ## 5. Feature vector (critical for any ML change)
 
-Defined in `src/monitor.py` as `FEATURE_COLUMNS`:
+Defined in `Production/src/monitor.py` as `FEATURE_COLUMNS`:
 
 1. `Ext_ID`
 2. `Size_KB`
@@ -136,7 +136,7 @@ Defined in `src/monitor.py` as `FEATURE_COLUMNS`:
 ## 6. Data layout
 
 ```
-data/
+Model_Experimenting/data/
   raw/
     sensitive/
       diabetes.csv
@@ -160,19 +160,18 @@ data/
 - Mitigation: **leave-one-file-out** validation
 
 ### Adding a new dataset
-1. Put CSV in `data/raw/sensitive/` or `data/raw/normal/`
+1. Put CSV in `Model_Experimenting/data/raw/sensitive/` or `Model_Experimenting/data/raw/normal/`
 2. Rebuild:
    ```bash
-   python tests/rebuild_sensitivity_dataset.py --rows-per-file 200
+   python Model_Experimenting/rebuild_sensitivity_dataset.py --rows-per-file 200
    ```
 3. Compare classifiers:
    ```bash
-   python tests/compare_classifiers_lofo.py --rows-per-file 200
+   python Model_Experimenting/compare_classifiers_lofo.py --rows-per-file 200
    ```
 
 Helpers already exist:
-- `tests/fetch_pii_masking_sample.py` (HuggingFace streaming; supports `--skip`)
-- `tests/fetch_weather_dataset.py`
+Add new raw CSVs directly under `Model_Experimenting/data/raw/sensitive/` or `Model_Experimenting/data/raw/normal/`, then rebuild.
 
 ---
 
@@ -180,26 +179,24 @@ Helpers already exist:
 
 | Script | Purpose |
 |--------|---------|
-| `tests/run_live_web_dashboard.py` | **Main production dashboard** (adaptive + baseline + SSE + HF) |
-| `tests/run_benchmarks.py` | Offline latency/energy benchmark on processed dataset |
-| `tests/test_production_streams.py` | Older/lighter harness (Scapy-oriented; secondary) |
-| `tests/rebuild_sensitivity_dataset.py` | Rebuild features + train production model |
-| `tests/leave_one_file_out_validation.py` | LOFO for one model style |
-| `tests/compare_classifiers_lofo.py` | LOFO compare KNN / LogReg / RF / constrained RF |
-| `tests/fetch_pii_masking_sample.py` | Stream small PII sample from HF |
-| `tests/fetch_weather_dataset.py` | Prepare weather as normal source |
-| `src/monitor.py` | Feature extraction (shared truth) |
-| `src/classifiers.py` | Q-Learning + reward |
-| `src/crypto_engines.py` | Real crypto primitives |
+| `Production/run_live_web_dashboard.py` | **Main production dashboard** (adaptive + baseline + SSE + HF) |
+| `Model_Experimenting/run_benchmarks.py` | Offline latency/energy benchmark on processed dataset |
+| `Production/test_production_streams.py` | Older/lighter harness (Scapy-oriented; secondary) |
+| `Model_Experimenting/rebuild_sensitivity_dataset.py` | Rebuild features + train production model |
+| `Model_Experimenting/leave_one_file_out_validation.py` | LOFO for one model style |
+| `Model_Experimenting/compare_classifiers_lofo.py` | LOFO compare KNN / LogReg / RF / constrained RF |
+| `Production/src/monitor.py` | Feature extraction (shared truth) |
+| `Production/src/classifiers.py` | Q-Learning + reward |
+| `Production/src/crypto_engines.py` | Real crypto primitives |
 
 ### Retrain production model
 ```bash
-python tests/rebuild_sensitivity_dataset.py --rows-per-file 200 --model-type logistic_regression
+python Model_Experimenting/rebuild_sensitivity_dataset.py --rows-per-file 200 --model-type logistic_regression
 ```
 Options: `logistic_regression` (default), `random_forest`, `knn`
 
 ### Dashboard load order
-Looks for `src/sensitivity_model.pkl` first, then falls back to `src/knn_model.pkl`.
+Looks for `Production/src/sensitivity_model.pkl` first, then falls back to `Production/src/knn_model.pkl`.
 
 ---
 
@@ -234,7 +231,7 @@ Looks for `src/sensitivity_model.pkl` first, then falls back to `src/knn_model.p
 
 **Action for collaborator:** after major classifier/feature changes, rerun:
 ```bash
-python tests/run_benchmarks.py
+python Model_Experimenting/run_benchmarks.py
 ```
 and update report numbers.
 
@@ -297,31 +294,31 @@ Existing docs to update when results change:
 ### Safe contribution zones
 - Ablation / benchmark scripts
 - Report docs and result tables
-- Additional datasets under `data/raw/...`
+- Additional datasets under `Model_Experimenting/data/raw/...`
 - Dashboard UX polish
 - Security analysis experiments
 - Tests for feature extractor edge cases
 
 ### Handle with care (ask before large changes)
-- `src/monitor.py` feature schema (breaks pickle + all scripts)
+- `Production/src/monitor.py` feature schema (breaks pickle + all scripts)
 - Production model type / `rebuild_sensitivity_dataset.py` defaults
-- Reward function / Q-table shape in `src/classifiers.py`
+- Reward function / Q-table shape in `Production/src/classifiers.py`
 - Crypto engine APIs (dashboard + benchmarks depend on return tuple shape)
 
 ### Workflow expectations
 1. Prefer scripts over one-off notebook cells for anything that affects results
 2. After feature or model changes:
    ```bash
-   python tests/rebuild_sensitivity_dataset.py --rows-per-file 200
-   python tests/compare_classifiers_lofo.py --rows-per-file 200
-   python tests/run_benchmarks.py
+   python Model_Experimenting/rebuild_sensitivity_dataset.py --rows-per-file 200
+   python Model_Experimenting/compare_classifiers_lofo.py --rows-per-file 200
+   python Model_Experimenting/run_benchmarks.py
    ```
 3. Commit result CSVs when metrics change intentionally
 4. Do not claim 100% accuracy from random split alone
-5. Keep Docker/dashboard runnable (`tests/run_live_web_dashboard.py`)
+5. Keep Docker/dashboard runnable (`Production/run_live_web_dashboard.py`)
 
 ### Suggested first tasks for the new contributor
-1. Read this file + `README.md` + `src/monitor.py` + `tests/run_live_web_dashboard.py`
+1. Read this file + `README.md` + `Production/src/monitor.py` + `Production/run_live_web_dashboard.py`
 2. Run dashboard locally and process a small CSV
 3. Run LOFO comparison and confirm numbers match `results/classifier_lofo_summary.csv`
 4. Pick one roadmap item (ablation script is highest leverage)
@@ -338,9 +335,9 @@ Read COLLABORATOR_AI_CONTEXT.md first and treat it as project truth.
 Do not revert production classifier to KNN unless LOFO evidence supports it.
 Do not hardcode entropy to 4.5.
 Prefer leave-one-file-out metrics over random-split accuracy for claims.
-Shared feature extraction must stay in src/monitor.py (FEATURE_COLUMNS).
-Production model is Logistic Regression in src/sensitivity_model.pkl.
-Q-Learning in src/classifiers.py selects cipher tiers; it is not the sensitivity classifier.
+Shared feature extraction must stay in Production/src/monitor.py (FEATURE_COLUMNS).
+Production model is Logistic Regression in Production/src/sensitivity_model.pkl.
+Q-Learning in Production/src/classifiers.py selects cipher tiers; it is not the sensitivity classifier.
 After feature/model changes, rebuild dataset, rerun LOFO compare, and rerun benchmarks.
 ```
 
@@ -353,19 +350,18 @@ After feature/model changes, rebuild dataset, rerun LOFO compare, and rerun benc
 pip install -r requirements.txt
 
 # Rebuild data + retrain production LogReg
-python tests/rebuild_sensitivity_dataset.py --rows-per-file 200
+python Model_Experimenting/rebuild_sensitivity_dataset.py --rows-per-file 200
 
 # Classifier LOFO comparison
-python tests/compare_classifiers_lofo.py --rows-per-file 200
+python Model_Experimenting/compare_classifiers_lofo.py --rows-per-file 200
 
 # Offline crypto benchmark
-python tests/run_benchmarks.py
+python Model_Experimenting/run_benchmarks.py
 
 # Live dashboard
-python tests/run_live_web_dashboard.py
+python Production/run_live_web_dashboard.py
 
 # Fetch more PII (second sample example)
-python tests/fetch_pii_masking_sample.py --limit 200 --skip 400 --output data/raw/sensitive/pii_masking_sample_c.csv
 
 # Docker
 docker compose up --build

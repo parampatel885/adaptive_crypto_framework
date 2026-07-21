@@ -7,12 +7,12 @@ That is more research-credible than a random row split when rows from the same
 source file may be very similar.
 
 Expected raw dataset layout:
-    data/raw/sensitive/*.csv  -> label 1
-    data/raw/normal/*.csv     -> label 0
+    Model_Experimenting/data/raw/sensitive/*.csv  -> label 1
+    Model_Experimenting/data/raw/normal/*.csv     -> label 0
 
 Usage:
-    python tests/leave_one_file_out_validation.py
-    python tests/leave_one_file_out_validation.py --rows-per-file 200 --k 1
+    python Model_Experimenting/leave_one_file_out_validation.py
+    python Model_Experimenting/leave_one_file_out_validation.py --rows-per-file 200 --k 1
 """
 
 from __future__ import annotations
@@ -31,14 +31,17 @@ from sklearn.preprocessing import StandardScaler
 
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.append(str(ROOT))
+sys.path.insert(0, str(ROOT))
+from repo_paths import DATA_RAW_NORMAL, DATA_RAW_SENSITIVE, RESULTS_DIR, setup_production_imports  # noqa: E402
+
+setup_production_imports()
 
 from src.monitor import extract_file_features  # noqa: E402
 
 
 RAW_DIRS = (
-    (ROOT / "data" / "raw" / "sensitive", 1),
-    (ROOT / "data" / "raw" / "normal", 0),
+    (DATA_RAW_SENSITIVE, 1),
+    (DATA_RAW_NORMAL, 0),
 )
 
 
@@ -155,7 +158,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--k", type=int, default=1, help="K value for KNeighborsClassifier.")
     parser.add_argument(
         "--output",
-        default=str(ROOT / "results" / "leave_one_file_out_validation.csv"),
+        default=str(RESULTS_DIR / "leave_one_file_out_validation.csv"),
         help="CSV path for fold-level validation metrics.",
     )
     return parser.parse_args()

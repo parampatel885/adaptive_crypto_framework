@@ -8,8 +8,8 @@ Compares:
   - Random Forest constrained (robustness / genuineness check)
 
 Usage:
-    python tests/compare_classifiers_lofo.py
-    python tests/compare_classifiers_lofo.py --rows-per-file 200 --k 1
+    python Model_Experimenting/compare_classifiers_lofo.py
+    python Model_Experimenting/compare_classifiers_lofo.py --rows-per-file 200 --k 1
 """
 
 from __future__ import annotations
@@ -33,8 +33,11 @@ from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
 
 ROOT = Path(__file__).resolve().parents[1]
-sys.path.append(str(ROOT))
-sys.path.append(str(ROOT / "tests"))
+sys.path.insert(0, str(ROOT))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from repo_paths import RESULTS_DIR, setup_production_imports  # noqa: E402
+
+setup_production_imports()
 
 from leave_one_file_out_validation import (  # noqa: E402
     discover_source_files,
@@ -166,11 +169,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--k", type=int, default=1, help="K for KNeighborsClassifier.")
     parser.add_argument(
         "--fold-output",
-        default=str(ROOT / "results" / "classifier_lofo_folds.csv"),
+        default=str(RESULTS_DIR / "classifier_lofo_folds.csv"),
     )
     parser.add_argument(
         "--summary-output",
-        default=str(ROOT / "results" / "classifier_lofo_summary.csv"),
+        default=str(RESULTS_DIR / "classifier_lofo_summary.csv"),
     )
     return parser.parse_args()
 
