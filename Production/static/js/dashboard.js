@@ -327,7 +327,7 @@ async function runCompare() {
       </tr>
       <tr>
         <td>Cipher Strategy</td>
-        <td>KNN + Q-Learning (3 tiers)</td>
+        <td>Logistic Regression + Q-Learning (3 tiers)</td>
         <td>Always ECDH+AES</td>
         <td>—</td>
       </tr>`;

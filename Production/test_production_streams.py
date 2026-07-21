@@ -97,7 +97,7 @@ def evaluate_and_encrypt_stream(filename, raw_text, threat_state):
     log_entry = {
         "source": filename,
         "size_kb": round(size_kb, 3),
-        "knn_state": "SENSITIVE" if sens_state == 1 else "PUBLIC",
+        "sensitivity_state": "SENSITIVE" if sens_state == 1 else "PUBLIC",
         "threat_state": "HIGH RISK" if threat_state == 1 else "SAFE",
         "allocated_tier": tier_label
     }
@@ -132,11 +132,11 @@ def home_dashboard():
         <h3>📊 Current Pipeline Transmission History Logs</h3>
         <table border="1" cellpadding="5" style="border-collapse:collapse; width:100%; border-color:#333; text-align:left;">
             <tr style="background-color:#1e1e1e;">
-                <th>Data Source Field</th><th>Footprint Size (KB)</th><th>KNN Sorter State</th><th>Threat Perimeter Context</th><th>Assigned Cryptographic Tier</th>
+                <th>Data Source Field</th><th>Footprint Size (KB)</th><th>Logistic Regression State</th><th>Threat Perimeter Context</th><th>Assigned Cryptographic Tier</th>
             </tr>
             {% for log in logs %}
             <tr>
-                <td>{{ log.source }}</td><td>{{ log.size_kb }}</td><td>{{ log.knn_state }}</td><td>{{ log.threat_state }}</td><td>{{ log.allocated_tier }}</td>
+                <td>{{ log.source }}</td><td>{{ log.size_kb }}</td><td>{{ log.sensitivity_state }}</td><td>{{ log.threat_state }}</td><td>{{ log.allocated_tier }}</td>
             </tr>
             {% endfor %}
         </table>
