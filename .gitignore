@@ -25,6 +25,10 @@ ENV/
 # Uncomment the line below if you do NOT want to commit the trained model.
 # Production/src/knn_model.pkl
 
+# Runtime Q-Learning state (regenerated as the dashboard learns)
+Production/src/q_table.npy
+Production/src/q_table.npy.*
+
 # ── Sensitive / raw data ──────────────────────────────────────────────
 # Raw datasets may contain PII — keep them out of version control.
 Model_Experimenting/data/raw/

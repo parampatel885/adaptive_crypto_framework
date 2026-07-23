@@ -26,6 +26,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(_REPO_ROOT))
 from repo_paths import (  # noqa: E402
     MODEL_CANDIDATES,
+    Q_TABLE_PATH,
     setup_production_imports,
     STATIC_DIR,
     TEMPLATES_DIR,
@@ -53,7 +54,14 @@ app = Flask(
 live_threat_state: int = 0
 sse_queue: queue.Queue = queue.Queue()
 session_results: dict = {"adaptive": None, "standard": None}
-rl_agent = AdaptiveQLearner()
+rl_agent = AdaptiveQLearner(persist_path=Q_TABLE_PATH, load_existing=True)
+if rl_agent.loaded_from_disk:
+    print(f"✅ Q-table loaded from {os.path.relpath(Q_TABLE_PATH, _REPO_ROOT)}")
+else:
+    print(
+        f"ℹ️  Q-table starting from defaults; will save to "
+        f"{os.path.relpath(Q_TABLE_PATH, _REPO_ROOT)} after updates"
+    )
 
 # ── Load sensitivity classifier (Logistic Regression by default) ──────
 sensitivity_model = None

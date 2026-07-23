@@ -22,6 +22,7 @@ STATIC_DIR = PRODUCTION / "static"
 
 SENSITIVITY_MODEL = SRC_DIR / "sensitivity_model.pkl"
 COMPAT_MODEL = SRC_DIR / "knn_model.pkl"
+Q_TABLE_PATH = SRC_DIR / "q_table.npy"
 
 MODEL_CANDIDATES = (SENSITIVITY_MODEL, COMPAT_MODEL)
 
