@@ -26,6 +26,7 @@ _REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(_REPO_ROOT))
 from repo_paths import (  # noqa: E402
     MODEL_CANDIDATES,
+    Q_TABLE_CANDIDATES,
     Q_TABLE_PATH,
     setup_production_imports,
     STATIC_DIR,
@@ -54,13 +55,31 @@ app = Flask(
 live_threat_state: int = 0
 sse_queue: queue.Queue = queue.Queue()
 session_results: dict = {"adaptive": None, "standard": None}
-rl_agent = AdaptiveQLearner(persist_path=Q_TABLE_PATH, load_existing=True)
-if rl_agent.loaded_from_disk:
-    print(f"✅ Q-table loaded from {os.path.relpath(Q_TABLE_PATH, _REPO_ROOT)}")
+
+# Prefer live q_table.npy, else pretrained showcase table.
+_q_path = next((p for p in Q_TABLE_CANDIDATES if p.exists()), Q_TABLE_PATH)
+rl_agent = AdaptiveQLearner(
+    persist_path=Q_TABLE_PATH,  # always continue learning into live path
+    load_existing=False,
+    safety_mask=True,
+    epsilon=0.05,          # low explore in live demo after pretraining
+    epsilon_min=0.01,
+    epsilon_decay=0.9995,
+    decay_epsilon=True,
+)
+if _q_path.exists():
+    rl_agent.load(_q_path)
+    # After loading pretrained weights, keep writing updates to live path
+    rl_agent.persist_path = Q_TABLE_PATH
+    print(f"✅ Q-table loaded from {os.path.relpath(_q_path, _REPO_ROOT)}")
+    print(
+        f"   safety_mask=ON | epsilon={rl_agent.epsilon:.4f} "
+        f"(decays to {rl_agent.epsilon_min})"
+    )
 else:
     print(
-        f"ℹ️  Q-table starting from defaults; will save to "
-        f"{os.path.relpath(Q_TABLE_PATH, _REPO_ROOT)} after updates"
+        f"ℹ️  No Q-table found; starting from defaults. "
+        f"Will save to {os.path.relpath(Q_TABLE_PATH, _REPO_ROOT)}"
     )
 
 # ── Load sensitivity classifier (Logistic Regression by default) ──────
@@ -186,7 +205,7 @@ def _adaptive_pipeline(lines: list[str], source_name: str) -> dict:
         sens = _classify(features)
         threat = live_threat_state
 
-        action = rl_agent.select_action(sens, threat, epsilon=0.05)
+        action = rl_agent.select_action(sens, threat)
 
         if action == 0:
             _, lat, eng = execute_lightweight_trivium(line)

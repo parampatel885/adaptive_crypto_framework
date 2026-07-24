@@ -22,9 +22,11 @@ STATIC_DIR = PRODUCTION / "static"
 
 SENSITIVITY_MODEL = SRC_DIR / "sensitivity_model.pkl"
 COMPAT_MODEL = SRC_DIR / "knn_model.pkl"
-Q_TABLE_PATH = SRC_DIR / "q_table.npy"
+Q_TABLE_PATH = SRC_DIR / "q_table.npy"  # live continued learning
+Q_TABLE_PRETRAINED = SRC_DIR / "q_table_pretrained.npy"  # showcase bootstrap
 
 MODEL_CANDIDATES = (SENSITIVITY_MODEL, COMPAT_MODEL)
+Q_TABLE_CANDIDATES = (Q_TABLE_PATH, Q_TABLE_PRETRAINED)
 
 
 def setup_production_imports() -> None:

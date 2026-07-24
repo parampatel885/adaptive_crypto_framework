@@ -215,6 +215,8 @@ Outputs: `Model_Experimenting/results/ablation_summary.csv`, `ablation_per_seed.
 ### Phase C5 — Engineering polish
 
 - Persist Q-table across restarts ✅ (`Production/src/q_table.npy`)
+- Safety mask + decaying ε in production ✅
+- Pretrain showcase Q-table ✅ (`Production/src/q_table_pretrained.npy`, via `train_q_table.py`)
 - Multi-seed benchmark stats (mean ± std)
 - Measure decision overhead (feature + ML time vs encrypt time)
 - Sync `Documents/dataset_summary.md` to current 14-feature / 1,800-row / LOFO numbers

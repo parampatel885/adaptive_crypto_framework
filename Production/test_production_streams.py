@@ -12,7 +12,12 @@ from scapy.all import sniff
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO_ROOT))
-from repo_paths import MODEL_CANDIDATES, Q_TABLE_PATH, setup_production_imports  # noqa: E402
+from repo_paths import (  # noqa: E402
+    MODEL_CANDIDATES,
+    Q_TABLE_CANDIDATES,
+    Q_TABLE_PATH,
+    setup_production_imports,
+)
 
 setup_production_imports()
 
@@ -28,7 +33,19 @@ app = Flask(__name__)
 
 # Core Framework Shared Memory Pools
 packet_log_history = []
-rl_agent = AdaptiveQLearner(persist_path=Q_TABLE_PATH, load_existing=True)
+_q_path = next((p for p in Q_TABLE_CANDIDATES if p.exists()), Q_TABLE_PATH)
+rl_agent = AdaptiveQLearner(
+    persist_path=Q_TABLE_PATH,
+    load_existing=False,
+    safety_mask=True,
+    epsilon=0.05,
+    epsilon_min=0.01,
+    epsilon_decay=0.9995,
+    decay_epsilon=True,
+)
+if _q_path.exists():
+    rl_agent.load(_q_path)
+    rl_agent.persist_path = Q_TABLE_PATH
 
 # Safeguard verification for model assets
 sensitivity_model = None
