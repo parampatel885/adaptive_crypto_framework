@@ -1,0 +1,28 @@
+[
+  {
+    "scenario": "local_1800_packets",
+    "n_packets": 1800,
+    "static_latency_ms": 476.26,
+    "adaptive_latency_ms": 307.43,
+    "latency_saving_pct": 35.45,
+    "static_energy_uj": 18193.05,
+    "adaptive_energy_uj": 11150.21,
+    "energy_saving_pct": 38.71,
+    "tier1": 588,
+    "tier2": 21,
+    "tier3": 1191
+  },
+  {
+    "scenario": "hf_stream_200_packets",
+    "n_packets": 200,
+    "static_latency_ms": 52.13,
+    "adaptive_latency_ms": 50.57,
+    "latency_saving_pct": 3.0,
+    "static_energy_uj": 1991.48,
+    "adaptive_energy_uj": 1926.77,
+    "energy_saving_pct": 3.25,
+    "tier1": 4,
+    "tier2": 0,
+    "tier3": 196
+  }
+]

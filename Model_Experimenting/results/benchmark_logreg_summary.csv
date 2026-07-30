@@ -1,0 +1,3 @@
+scenario,n_packets,static_latency_ms,adaptive_latency_ms,latency_saving_pct,static_energy_uj,adaptive_energy_uj,energy_saving_pct,tier1,tier2,tier3
+local_1800_packets,1800,476.26,307.43,35.45,18193.05,11150.21,38.71,588,21,1191
+hf_stream_200_packets,200,52.13,50.57,3.0,1991.48,1926.77,3.25,4,0,196
