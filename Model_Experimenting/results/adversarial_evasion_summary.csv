@@ -1,0 +1,6 @@
+attack_type,accuracy,macro_f1,sensitive_recall_pct,normal_recall_pct,sensitive_caught,sensitive_leaked
+1. Clean Baseline,55.56,0.3571,100.0,0.0,250,0
+2. Token Splitting,55.56,0.3571,100.0,0.0,250,0
+3. Camouflage Padding,55.56,0.3571,100.0,0.0,250,0
+4. Special Char Noise,55.56,0.3571,100.0,0.0,250,0
+5. Base64 Encoding,55.56,0.3571,100.0,0.0,250,0

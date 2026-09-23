@@ -1,0 +1,6 @@
+name,total_latency_ms,avg_latency_ms,total_energy_uj,avg_energy_uj,tier1_pct,tier2_pct,tier3_pct,violations,mean_utility
+1. Static Tier 3 (Always ECDH+AES),72.8,0.1618,2781.05,6.1801,0.0,0.0,100.0,0,2.644
+2. Static Tier 1 (Always ChaCha20),3.86,0.0086,11.98,0.0266,100.0,0.0,0.0,249,-8.027
+"3. Baseline RL (Heuristic, 2x2 State)",51.65,0.1148,1909.69,4.2437,33.6,0.0,66.4,0,4.256
+"4. Multi-Objective RL (Utility, 2x2 State)",42.69,0.0949,1543.79,3.4306,33.6,11.1,55.3,0,4.815
+"5. Multi-Dim RL (Utility, 2x2x2 State with Size)",42.37,0.0942,1545.64,3.4347,33.6,11.1,55.3,0,4.814

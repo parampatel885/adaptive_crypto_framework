@@ -1,15 +1,16 @@
-# ACF Progress Update for NotebookLM (July 2026)
+# ACF Progress Update for NotebookLM (v1 — July 2026)
 
-> **Purpose:** Upload this file to NotebookLM **together with** `NOTEBOOKLM_PROJECT_SOURCE.md`.  
-> This document describes **recent changes, why they were made, new experiments, and how to write the report honestly**.  
-> Where this file conflicts with older notes, **prefer this file**.
+> **Purpose:** Baseline progress document covering the July 2026 transition.  
+> **Note:** For the latest September 2026 research advancements (Multi-Objective Utility, 3D Q-Tensor, Adversarial Obfuscation Robustness, and CICIDS Threat Ingestion), **see `Documents/NOTEBOOKLM_PROGRESS_v2.md`**.  
+> Upload `NOTEBOOKLM_PROJECT_SOURCE.md`, `NOTEBOOKLM_PROGRESS_v1.md`, and `NOTEBOOKLM_PROGRESS_v2.md` together to NotebookLM.
 
 **Author:** Param Patel  
 **Project:** Adaptive Cryptography Framework (ACF)  
-**Date of this update:** July 2026  
+**Date of this update:** July 2026 (Superseded by v2 in September 2026)  
 
 **Companion sources:**
 - `Documents/NOTEBOOKLM_PROJECT_SOURCE.md` — baseline full project narrative
+- `Documents/NOTEBOOKLM_PROGRESS_v2.md` — latest v2 research update (September 2026)
 - `Documents/COLLABORATOR_AI_CONTEXT.md` — engineering handoff
 - `PROJECT_PHASES.md` — phase roadmap at repo root
 - `Model_Experimenting/results/ablation_summary.csv` — ablation numbers

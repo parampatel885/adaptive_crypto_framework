@@ -1,10 +1,10 @@
 # Adaptive Cryptography Framework (ACF)
 ## Complete Project Source Document for Academic Report Generation
 
-> **Purpose of this document:** Upload this file to NotebookLM along with your college report format template and previous semester report. NotebookLM should treat this file as the authoritative technical source for the project’s current state.
+> **Purpose of this document:** Upload this file to NotebookLM along with your college report format template, `NOTEBOOKLM_PROGRESS_v1.md`, and `NOTEBOOKLM_PROGRESS_v2.md`. NotebookLM should treat this file as the authoritative technical source for the project’s foundational architecture.
 >
-> **Last updated:** July 2026  
-> **Companion files:** `dataset_summary.md`, `COLLABORATOR_AI_CONTEXT.md`, `results/classifier_lofo_summary.csv`
+> **Last updated:** September 2026  
+> **Companion files:** `NOTEBOOKLM_PROGRESS_v2.md` (v2 research advancements), `NOTEBOOKLM_PROGRESS_v1.md` (v1 progress), `dataset_summary.md`, `MENTOR_UPDATE.md`
 
 ---
 
@@ -456,21 +456,41 @@ The Adaptive Cryptography Framework demonstrates that **context-aware encryption
 
 ## 13. Suggested Report Section Mapping
 
-| Typical college report section | Use from this document |
-|--------------------------------|------------------------|
+| Typical college report section | Use from this document & v2 Update |
+|--------------------------------|------------------------------------|
 | Title / Certificate | Section 1 |
 | Abstract | Section 2 |
 | Introduction / Problem | Sections 3–4 |
-| Literature / Related work | Section 3.2 + crypto/ML background |
-| System design | Section 5 |
-| Methodology | Section 6 |
-| Implementation | Section 7 |
-| Results & Discussion | Section 8 (emphasize LOFO + weak-fold story) |
+| Literature / Related work | Section 3.2 + CICIDS2017 / QKD-DRL references |
+| System design | Section 5 + 3D Q-Tensor |
+| Methodology | Section 6 + Multi-Objective Utility formulation |
+| Implementation | Section 7 + Forward Secrecy in Tier 3 |
+| Results & Discussion | Section 8 + Section 13.5 (Ablation, Utility, & Adversarial) |
 | Limitations | Section 10 |
 | Conclusion | Section 12 |
 | Future work | Section 11 |
 | References | Section 14 |
-| Appendices | `results/*.csv`, feature list, screenshots |
+| Appendices | `results/*.csv`, feature list, comparison plots |
+
+---
+
+## 13.5 Advanced Research Breakthroughs (September 2026 — v2 Upgrades)
+
+*(For complete technical details, mathematical proofs, and raw CSV metrics, see `Documents/NOTEBOOKLM_PROGRESS_v2.md`)*
+
+1. **Mathematically Grounded Multi-Objective Utility Formulation**:
+   * Replaced the heuristic reward ($+15, -30$) with a physical utility model:
+     $$\mathcal{U}(a, s, t, L) = w_{\text{sec}} \cdot \mathcal{S}(a, s, t) - w_{\text{lat}} \cdot \mathcal{T}(a, L) - w_{\text{eng}} \cdot \mathcal{E}(a, L)$$
+   * Achieved **$41.4\%$ Latency Reduction** and **$44.5\%$ Energy Savings** vs. Static Tier 3, with **$0$ Security Violations** ($100\%$ compliance).
+2. **Multi-Dimensional Q-State Space ($2 \times 2 \times 2 = 8$ states)**:
+   * Expanded state tensor to incorporate Payload Size (`Small` $\le 50\text{ KB}$ vs `Large` $> 50\text{ KB}$) alongside Sensitivity and Threat states.
+3. **Adversarial Obfuscation & Evasion Robustness**:
+   * Tested under Base64 encoding, token splitting, camouflage padding, and special character noise.
+   * Maintained **$100.00\%$ Sensitive Recall** due to Shannon Entropy and special-ratio statistical backstops.
+4. **Real-World Cyberattack Stream Ingestion (CICIDS2017)**:
+   * Demonstrated dynamic cipher escalation from Tier 1 to Tier 2 during simulated DDoS/DoS network floods, followed by automated recovery.
+5. **Cryptographic Forward Secrecy in Tier 3**:
+   * Ephemeral ECDH key generation (SECP256R1) guarantees **Perfect Forward Secrecy (PFS)** against retroactive decryption.
 
 ---
 

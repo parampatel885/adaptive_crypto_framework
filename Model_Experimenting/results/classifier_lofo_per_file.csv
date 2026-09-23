@@ -1,0 +1,10 @@
+heldout_file,heldout_label,n_test,accuracy,n_errors,mean_score
+diabetes.csv,1,50,1.0,0,1.0
+employee_records.csv,1,50,1.0,0,0.8994
+FraudShield_Banking_Data.csv,1,50,1.0,0,1.0
+pii_masking_sample.csv,1,50,0.98,1,0.9653
+pii_masking_sample_b.csv,1,50,0.94,3,0.907
+Airlines.csv,0,50,0.28,36,0.5278
+HomeC.csv,0,50,1.0,0,0.0
+weatherHistory.csv,0,50,1.0,0,0.0069
+world_population.csv,0,50,0.94,3,0.4144
